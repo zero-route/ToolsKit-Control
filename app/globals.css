@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ad-page: 0 0 0;
+  --ad-surface: 20 20 20;
+  --ad-surface-2: 26 26 26;
+  --ad-border: 42 42 42;
+  --ad-text-primary: 229 229 229;
+  --ad-text-secondary: 136 136 136;
+  --ad-text-muted: 102 102 102;
+  --ad-red: 226 75 74;
+  --ad-red-dark: 163 45 45;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  font-family: var(--font-body);
+}
