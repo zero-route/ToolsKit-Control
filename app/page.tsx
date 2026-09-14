@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabaseClient'
 import { categories } from '@/lib/toolsData'
 import MasterKillSwitch from '@/components/MasterKillSwitch'
 import CategoryGroup from '@/components/CategoryGroup'
+import WeatherSettings from '@/components/WeatherSettings'
 
 const allToolIds = categories.flatMap((category) => category.tools.map((tool) => tool.id))
 
@@ -82,8 +83,9 @@ export default function AdminPage() {
     <div className="mx-auto max-w-lg px-6 py-10">
       <h1 className="text-center font-display text-2xl font-medium text-textPrimary">KitBox control</h1>
 
-      <div className="mt-8">
+      <div className="mt-8 flex flex-col gap-4">
         <MasterKillSwitch onKillAll={handleKillAll} onRestoreAll={() => handleToggleAll(true)} />
+        <WeatherSettings password={password} />
       </div>
 
       {error && <p className="mt-4 text-center text-xs text-red">{error}</p>}
