@@ -49,6 +49,12 @@ export default function AdminPage() {
     allToolIds.forEach((toolId) => updateFlag(toolId, enabled))
   }
 
+  function handleKillAll() {
+    if (window.confirm('Matikan semua tools sekarang?')) {
+      handleToggleAll(false)
+    }
+  }
+
   if (!unlocked) {
     return (
       <div className="flex min-h-screen items-center justify-center px-6">
@@ -72,14 +78,12 @@ export default function AdminPage() {
     )
   }
 
-  const allEnabled = allToolIds.every((id) => flags[id] ?? true)
-
   return (
     <div className="mx-auto max-w-lg px-6 py-10">
       <h1 className="text-center font-display text-2xl font-medium text-textPrimary">KitBox control</h1>
 
       <div className="mt-8">
-        <MasterKillSwitch allEnabled={allEnabled} onToggleAll={handleToggleAll} />
+        <MasterKillSwitch onKillAll={handleKillAll} onRestoreAll={() => handleToggleAll(true)} />
       </div>
 
       {error && <p className="mt-4 text-center text-xs text-red">{error}</p>}
