@@ -3,10 +3,21 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 
+function parseCoordinates(input: string): { latitude: number; longitude: number } | null {
+  const parts = input.split(',').map((part) => part.trim())
+  if (parts.length !== 2) return null
+
+  const latitude = parseFloat(parts[0])
+  const longitude = parseFloat(parts[1])
+
+  if (Number.isNaN(latitude) || Number.isNaN(longitude)) return null
+
+  return { latitude, longitude }
+}
+
 export default function WeatherSettings({ password }: { password: string }) {
   const [mode, setMode] = useState<'auto' | 'manual'>('auto')
-  const [latitude, setLatitude] = useState('')
-  const [longitude, setLongitude] = useState('')
+  const [coordinateInput, setCoordinateInput] = useState('')
   const [status, setStatus] = useState<string | null>(null)
 
   useEffect(() => {
@@ -21,8 +32,9 @@ export default function WeatherSettings({ password }: { password: string }) {
           map[row.key] = row.value
         })
         if (map.weather_mode === 'manual') setMode('manual')
-        setLatitude(map.manual_latitude ?? '')
-        setLongitude(map.manual_longitude ?? '')
+        if (map.manual_latitude && map.manual_longitude) {
+          setCoordinateInput(`${map.manual_latitude},${map.manual_longitude}`)
+        }
       })
   }, [])
 
@@ -42,8 +54,14 @@ export default function WeatherSettings({ password }: { password: string }) {
   }
 
   async function handleSaveCoordinates() {
-    const okLat = await saveSetting('manual_latitude', latitude)
-    const okLon = await saveSetting('manual_longitude', longitude)
+    const parsed = parseCoordinates(coordinateInput)
+    if (!parsed) {
+      setStatus('Format koordinat tidak valid, contoh: -6.177602,106.826648')
+      return
+    }
+
+    const okLat = await saveSetting('manual_latitude', String(parsed.latitude))
+    const okLon = await saveSetting('manual_longitude', String(parsed.longitude))
     setStatus(okLat && okLon ? 'Koordinat tersimpan' : 'Password salah atau gagal menyimpan')
   }
 
@@ -72,17 +90,12 @@ export default function WeatherSettings({ password }: { password: string }) {
       {mode === 'manual' && (
         <div className="mt-4 flex flex-col gap-2">
           <input
-            value={latitude}
-            onChange={(event) => setLatitude(event.target.value)}
-            placeholder="Latitude, misal -6.2"
+            value={coordinateInput}
+            onChange={(event) => setCoordinateInput(event.target.value)}
+            placeholder="-6.177602,106.826648"
             className="rounded-lg border border-border bg-surface2 px-3 py-2 text-sm text-textPrimary outline-none focus:border-red"
           />
-          <input
-            value={longitude}
-            onChange={(event) => setLongitude(event.target.value)}
-            placeholder="Longitude, misal 106.8"
-            className="rounded-lg border border-border bg-surface2 px-3 py-2 text-sm text-textPrimary outline-none focus:border-red"
-          />
+          <p className="text-xs text-textMuted">Format: latitude,longitude (pisah koma, tanpa spasi)</p>
           <button
             onClick={handleSaveCoordinates}
             className="rounded-lg bg-red px-3 py-2 text-xs font-medium text-white hover:bg-red-dark"
