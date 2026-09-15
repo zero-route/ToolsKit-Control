@@ -96,7 +96,7 @@ export default function AdminPage() {
             disabled={isLoggingIn}
             className="mt-3 w-full rounded-lg bg-red px-4 py-2 text-sm font-medium text-white hover:bg-red-dark disabled:opacity-50"
           >
-            {isLoggingIn ? 'Memeriksa...' : 'Mask'}
+            {isLoggingIn ? 'Memeriksa...' : 'Masuk'}
           </button>
         </div>
       </div>
