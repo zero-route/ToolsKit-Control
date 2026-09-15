@@ -12,6 +12,8 @@ const allToolIds = categories.flatMap((category) => category.tools.map((tool) =>
 export default function AdminPage() {
   const [password, setPassword] = useState('')
   const [unlocked, setUnlocked] = useState(false)
+  const [loginError, setLoginError] = useState<string | null>(null)
+  const [isLoggingIn, setIsLoggingIn] = useState(false)
   const [flags, setFlags] = useState<Record<string, boolean>>({})
   const [error, setError] = useState<string | null>(null)
 
@@ -56,6 +58,25 @@ export default function AdminPage() {
     }
   }
 
+  async function handleLogin() {
+    setLoginError(null)
+    setIsLoggingIn(true)
+
+    const res = await fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password })
+    })
+
+    setIsLoggingIn(false)
+
+    if (res.ok) {
+      setUnlocked(true)
+    } else {
+      setLoginError('Password salah')
+    }
+  }
+
   if (!unlocked) {
     return (
       <div className="flex min-h-screen items-center justify-center px-6">
@@ -68,11 +89,13 @@ export default function AdminPage() {
             onChange={(event) => setPassword(event.target.value)}
             className="mt-4 w-full rounded-lg border border-border bg-surface2 px-3 py-2 text-sm text-textPrimary outline-none focus:border-red"
           />
+          {loginError && <p className="mt-2 text-xs text-red">{loginError}</p>}
           <button
-            onClick={() => setUnlocked(true)}
-            className="mt-3 w-full rounded-lg bg-red px-4 py-2 text-sm font-medium text-white hover:bg-red-dark"
+            onClick={handleLogin}
+            disabled={isLoggingIn}
+            className="mt-3 w-full rounded-lg bg-red px-4 py-2 text-sm font-medium text-white hover:bg-red-dark disabled:opacity-50"
           >
-            Masuk
+            {isLoggingIn ? 'Memeriksa...' : 'Masuk'}
           </button>
         </div>
       </div>
