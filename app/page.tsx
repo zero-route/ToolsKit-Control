@@ -6,6 +6,7 @@ import { categories } from '@/lib/toolsData'
 import MasterKillSwitch from '@/components/MasterKillSwitch'
 import CategoryGroup from '@/components/CategoryGroup'
 import WeatherSettings from '@/components/WeatherSettings'
+import DisabledToolsNote from '@/components/DisabledToolsNote'
 
 const allToolIds = categories.flatMap((category) => category.tools.map((tool) => tool.id))
 

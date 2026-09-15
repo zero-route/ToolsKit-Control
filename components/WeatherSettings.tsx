@@ -2,110 +2,176 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
+import { categories } from '@/lib/toolsData'
+import MasterKillSwitch from '@/components/MasterKillSwitch'
+import CategoryGroup from '@/components/CategoryGroup'
+import WeatherSettings from '@/components/WeatherSettings'
+import DisabledToolsNote from '@/components/DisabledToolsNote'
 
-function parseCoordinates(input: string): { latitude: number; longitude: number } | null {
-  const parts = input.split(',').map((part) => part.trim())
-  if (parts.length !== 2) return null
+const allToolIds = categories.flatMap((category) =>
+  category.tools.map((tool) => tool.id)
+)
 
-  const latitude = parseFloat(parts[0])
-  const longitude = parseFloat(parts[1])
-
-  if (Number.isNaN(latitude) || Number.isNaN(longitude)) return null
-
-  return { latitude, longitude }
-}
-
-export default function WeatherSettings({ password }: { password: string }) {
-  const [mode, setMode] = useState<'auto' | 'manual'>('auto')
-  const [coordinateInput, setCoordinateInput] = useState('')
-  const [status, setStatus] = useState<string | null>(null)
+export default function AdminPage() {
+  const [password, setPassword] = useState('')
+  const [unlocked, setUnlocked] = useState(false)
+  const [loginError, setLoginError] = useState<string | null>(null)
+  const [isLoggingIn, setIsLoggingIn] = useState(false)
+  const [flags, setFlags] = useState<Record<string, boolean>>({})
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     supabase
-      .from('app_settings')
-      .select('key, value')
-      .in('key', ['weather_mode', 'manual_latitude', 'manual_longitude'])
+      .from('feature_flags')
+      .select('tool_id, is_enabled')
       .then(({ data }) => {
         if (!data) return
-        const map: Record<string, string | null> = {}
+
+        const map: Record<string, boolean> = {}
+
         data.forEach((row) => {
-          map[row.key] = row.value
+          map[row.tool_id] = row.is_enabled
         })
-        if (map.weather_mode === 'manual') setMode('manual')
-        if (map.manual_latitude && map.manual_longitude) {
-          setCoordinateInput(`${map.manual_latitude},${map.manual_longitude}`)
-        }
+
+        setFlags(map)
       })
   }, [])
 
-  async function saveSetting(key: string, value: string) {
-    const res = await fetch('/api/settings', {
+  async function updateFlag(toolId: string, enabled: boolean) {
+    setFlags((prev) => ({
+      ...prev,
+      [toolId]: enabled
+    }))
+
+    const res = await fetch('/api/toggle', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ key, value, password })
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        toolId,
+        enabled,
+        password
+      })
     })
-    return res.ok
-  }
 
-  async function handleModeChange(nextMode: 'auto' | 'manual') {
-    setMode(nextMode)
-    const ok = await saveSetting('weather_mode', nextMode)
-    setStatus(ok ? null : 'Password salah atau gagal menyimpan')
-  }
+    if (!res.ok) {
+      setFlags((prev) => ({
+        ...prev,
+        [toolId]: !enabled
+      }))
 
-  async function handleSaveCoordinates() {
-    const parsed = parseCoordinates(coordinateInput)
-    if (!parsed) {
-      setStatus('Format koordinat tidak valid, contoh: -6.177602,106.826648')
-      return
+      setError('Password salah atau gagal menyimpan')
+    } else {
+      setError(null)
     }
+  }
 
-    const okLat = await saveSetting('manual_latitude', String(parsed.latitude))
-    const okLon = await saveSetting('manual_longitude', String(parsed.longitude))
-    setStatus(okLat && okLon ? 'Koordinat tersimpan' : 'Password salah atau gagal menyimpan')
+  function handleToggleAll(enabled: boolean) {
+    allToolIds.forEach((toolId) => {
+      updateFlag(toolId, enabled)
+    })
+  }
+
+  function handleKillAll() {
+    if (window.confirm('Matikan semua tools sekarang?')) {
+      handleToggleAll(false)
+    }
+  }
+
+  async function handleLogin() {
+    setLoginError(null)
+    setIsLoggingIn(true)
+
+    const res = await fetch('/api/auth', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        password
+      })
+    })
+
+    setIsLoggingIn(false)
+
+    if (res.ok) {
+      setUnlocked(true)
+    } else {
+      setLoginError('Password salah')
+    }
+  }
+
+  if (!unlocked) {
+    return (
+      <div className="flex min-h-screen items-center justify-center px-6">
+        <div className="w-full max-w-xs rounded-xl border border-border bg-surface p-6">
+          <h1 className="font-display text-lg font-medium text-textPrimary">
+            KitBox control
+          </h1>
+
+          <p className="mt-1 text-sm text-textMuted">
+            Masukkan password admin
+          </p>
+
+          <input
+            type="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            className="mt-4 w-full rounded-lg border border-border bg-surface2 px-3 py-2 text-sm text-textPrimary outline-none focus:border-red"
+          />
+
+          {loginError && (
+            <p className="mt-2 text-xs text-red">
+              {loginError}
+            </p>
+          )}
+
+          <button
+            onClick={handleLogin}
+            disabled={isLoggingIn}
+            className="mt-3 w-full rounded-lg bg-red px-4 py-2 text-sm font-medium text-white hover:bg-red-dark disabled:opacity-50"
+          >
+            {isLoggingIn ? 'Memeriksa...' : 'Masuk'}
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="rounded-xl border border-border bg-surface p-5">
-      <p className="text-sm font-medium text-textPrimary">Pengaturan cuaca</p>
-      <div className="mt-3 flex gap-2">
-        <button
-          onClick={() => handleModeChange('auto')}
-          className={`flex-1 rounded-lg px-3 py-2 text-xs font-medium ${
-            mode === 'auto' ? 'bg-red text-white' : 'border border-border text-textSecondary'
-          }`}
-        >
-          Otomatis (IP pengunjung)
-        </button>
-        <button
-          onClick={() => handleModeChange('manual')}
-          className={`flex-1 rounded-lg px-3 py-2 text-xs font-medium ${
-            mode === 'manual' ? 'bg-red text-white' : 'border border-border text-textSecondary'
-          }`}
-        >
-          Manual
-        </button>
+    <div className="mx-auto max-w-lg px-6 py-10">
+      <h1 className="text-center font-display text-2xl font-medium text-textPrimary">
+        KitBox control
+      </h1>
+
+      <div className="mt-8 flex flex-col gap-4">
+        <MasterKillSwitch
+          onKillAll={handleKillAll}
+          onRestoreAll={() => handleToggleAll(true)}
+        />
+
+        <WeatherSettings password={password} />
+
+        <DisabledToolsNote password={password} />
       </div>
 
-      {mode === 'manual' && (
-        <div className="mt-4 flex flex-col gap-2">
-          <input
-            value={coordinateInput}
-            onChange={(event) => setCoordinateInput(event.target.value)}
-            placeholder="-6.177602,106.826648"
-            className="rounded-lg border border-border bg-surface2 px-3 py-2 text-sm text-textPrimary outline-none focus:border-red"
-          />
-          <p className="text-xs text-textMuted">Format: latitude,longitude (pisah koma, tanpa spasi)</p>
-          <button
-            onClick={handleSaveCoordinates}
-            className="rounded-lg bg-red px-3 py-2 text-xs font-medium text-white hover:bg-red-dark"
-          >
-            Simpan koordinat
-          </button>
-        </div>
+      {error && (
+        <p className="mt-4 text-center text-xs text-red">
+          {error}
+        </p>
       )}
 
-      {status && <p className="mt-2 text-xs text-red">{status}</p>}
+      <div className="mt-6 flex flex-col gap-4">
+        {categories.map((category) => (
+          <CategoryGroup
+            key={category.slug}
+            category={category}
+            flags={flags}
+            onToggle={updateFlag}
+          />
+        ))}
+      </div>
     </div>
   )
 }
