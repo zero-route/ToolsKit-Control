@@ -109,6 +109,7 @@ export default function AdminPage() {
 
       <div className="mt-8 flex flex-col gap-4">
         <MasterKillSwitch onKillAll={handleKillAll} onRestoreAll={() => handleToggleAll(true)} />
+        <DisabledToolsNote password={password} />
         <WeatherSettings password={password} />
       </div>
 
