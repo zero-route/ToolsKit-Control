@@ -57,6 +57,10 @@ export const categories: AdminCategory[] = [
       { id: 'ip-network-info', name: 'IP and network info' },
       { id: 'subnet-calculator', name: 'CIDR/subnet calculator' },
       { id: 'timestamp-converter', name: 'Epoch timestamp converter' }
+      { id: 'dns-lookup', name: 'DNS Lookup' },
+      { id: 'ping-tester', name: 'Ping/Latency tester' },
+      { id: 'mac-vendor-lookup', name: 'MAC Address vendor lookup' },
+      { id: 'whois-lookup', name: 'WHOIS/domain info lookup' }
     ]
   }
 ]
