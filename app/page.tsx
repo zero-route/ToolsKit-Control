@@ -258,6 +258,11 @@ export default function AdminPage() {
     )
   }
 
+  const enabledMap: Record<string, boolean> = {}
+  for (const key in flags) {
+    enabledMap[key] = flags[key].is_enabled
+  }
+
   return (
     <main className="min-h-screen bg-black px-6 py-12 text-white">
       <div className="mx-auto max-w-5xl">
@@ -292,7 +297,7 @@ export default function AdminPage() {
             <CategoryGroup
               key={category.slug}
               category={category}
-              flags={flags}
+              flags={enabledMap}
               onToggle={handleToggle}
             />
           ))}
