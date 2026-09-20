@@ -162,7 +162,7 @@ export default function AdminPage() {
   async function handleToggleAll(enabled: boolean) {
     setError('')
 
-    const toolIds = categories.flatMap((category) => category.tools)
+    const toolIds = categories.flatMap((category) => category.tools.map((tool) => tool.id))
 
     setFlags((current) => {
       const next = { ...current }
