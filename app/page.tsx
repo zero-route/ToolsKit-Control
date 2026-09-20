@@ -276,7 +276,7 @@ export default function AdminPage() {
             onRestoreAll={() => handleToggleAll(true)}
           />
 
-          <WeatherSettings />
+          <WeatherSettings password={password} />
         </div>
 
         <DisabledToolsNote password={password} />
