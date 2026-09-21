@@ -26,7 +26,9 @@ export const categories: AdminCategory[] = [
     tools: [
       { id: 'svg-vectorizer', name: 'SVG vectorizer' },
       { id: 'base64-converter', name: 'Base64 converter' },
-      { id: 'qr-barcode-generator', name: 'QR and barcode generator' }
+      { id: 'qr-barcode-generator', name: 'QR and barcode generator' },
+      { id: 'color-palette-generator',
+          name: 'Color picker and palette generator' },
     ]
   },
   {
