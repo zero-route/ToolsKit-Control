@@ -1,23 +1,69 @@
-@tailwind base;
+ @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --ad-page: 0 0 0;
-  --ad-surface: 20 20 20;
-  --ad-surface-2: 26 26 26;
-  --ad-border: 42 42 42;
-  --ad-text-primary: 229 229 229;
-  --ad-text-secondary: 136 136 136;
-  --ad-text-muted: 102 102 102;
-  --ad-red: 226 75 74;
-  --ad-red-dark: 163 45 45;
+  --ad-page: 9 10 11;
+  --ad-surface: 17 18 20;
+  --ad-surface-2: 22 24 27;
+
+  --ad-border: 38 41 45;
+  --ad-border-strong: 52 56 61;
+
+  --ad-text-primary: 242 242 242;
+  --ad-text-secondary: 155 158 163;
+  --ad-text-muted: 103 107 113;
+
+  --ad-red: 229 72 77;
+  --ad-red-dark: 190 55 60;
 }
 
 html {
   color-scheme: dark;
+  background: rgb(var(--ad-page));
 }
 
 body {
+  margin: 0;
+  min-height: 100vh;
+  background: rgb(var(--ad-page));
+  color: rgb(var(--ad-text-primary));
   font-family: var(--font-body);
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: rgb(var(--ad-text-primary) / 0.16);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(54 57 62) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgb(54 57 62);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgb(75 79 85);
 }
