@@ -53,7 +53,7 @@ export default function AdminPage() {
         {
           event: '*',
           schema: 'public',
-          table: 'feature_flags',
+          table: 'feature_flags'
         },
         (payload) => {
           const row = payload.new as FeatureFlag
@@ -62,7 +62,7 @@ export default function AdminPage() {
 
           setFlags((current) => ({
             ...current,
-            [row.tool_id]: row,
+            [row.tool_id]: row
           }))
         }
       )
@@ -88,11 +88,11 @@ export default function AdminPage() {
       const response = await fetch('/api/auth', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          password: inputPassword,
-        }),
+          password: inputPassword
+        })
       })
 
       const result = await response.json()
@@ -105,13 +105,20 @@ export default function AdminPage() {
       setAuthenticated(true)
       setInputPassword('')
     } catch (loginError) {
-      setError(loginError instanceof Error ? loginError.message : 'Login gagal.')
+      setError(
+        loginError instanceof Error
+          ? loginError.message
+          : 'Login gagal.'
+      )
     } finally {
       setLoading(false)
     }
   }
 
-  async function handleToggle(toolId: string, enabled: boolean) {
+  async function handleToggle(
+    toolId: string,
+    enabled: boolean
+  ) {
     setError('')
 
     const previous = flags[toolId]
@@ -121,34 +128,41 @@ export default function AdminPage() {
       [toolId]: {
         tool_id: toolId,
         is_enabled: enabled,
-        disabled_reason: previous?.disabled_reason ?? null,
-      },
+        disabled_reason:
+          previous?.disabled_reason ?? null
+      }
     }))
 
     try {
       const response = await fetch('/api/toggle', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           toolId,
           enabled,
-          password,
-        }),
+          password
+        })
       })
 
       const result = await response.json()
 
       if (!response.ok) {
-        throw new Error(result.error || 'Gagal mengubah status tool.')
+        throw new Error(
+          result.error || 'Gagal mengubah status tool.'
+        )
       }
 
       await loadFlags()
     } catch (toggleError) {
       setFlags((current) => ({
         ...current,
-        ...(previous ? { [toolId]: previous } : {}),
+        ...(previous
+          ? {
+              [toolId]: previous
+            }
+          : {})
       }))
 
       setError(
@@ -162,7 +176,9 @@ export default function AdminPage() {
   async function handleToggleAll(enabled: boolean) {
     setError('')
 
-    const toolIds = categories.flatMap((category) => category.tools.map((tool) => tool.id))
+    const toolIds = categories.flatMap((category) =>
+      category.tools.map((tool) => tool.id)
+    )
 
     setFlags((current) => {
       const next = { ...current }
@@ -171,7 +187,8 @@ export default function AdminPage() {
         next[toolId] = {
           tool_id: toolId,
           is_enabled: enabled,
-          disabled_reason: current[toolId]?.disabled_reason ?? null,
+          disabled_reason:
+            current[toolId]?.disabled_reason ?? null
         }
       }
 
@@ -183,29 +200,35 @@ export default function AdminPage() {
         const response = await fetch('/api/toggle', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
             toolId,
             enabled,
-            password,
-          }),
+            password
+          })
         })
 
         const result = await response.json()
 
         if (!response.ok) {
-          throw new Error(result.error || `Gagal mengubah ${toolId}.`)
+          throw new Error(
+            result.error || `Gagal mengubah ${toolId}.`
+          )
         }
       })
     )
 
-    const failedCount = results.filter((result) => result.status === 'rejected').length
+    const failedCount = results.filter(
+      (result) => result.status === 'rejected'
+    ).length
 
     await loadFlags()
 
     if (failedCount > 0) {
-      setError(`${failedCount} tools gagal diubah, coba lagi`)
+      setError(
+        `${failedCount} tools gagal diubah, coba lagi`
+      )
     }
   }
 
@@ -215,17 +238,18 @@ export default function AdminPage() {
 
   if (!authenticated) {
     return (
-      <main className="min-h-screen bg-black px-6 py-12 text-white">
-        <div className="mx-auto flex min-h-[70vh] max-w-md items-center justify-center">
+      <main className="min-h-screen bg-page px-4 py-8 text-textPrimary sm:px-6">
+        <div className="mx-auto flex min-h-[75vh] max-w-md items-center justify-center">
           <form
             onSubmit={handleLogin}
-            className="w-full rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-xl"
+            className="w-full rounded-xl border border-border bg-surface p-5 sm:p-6"
           >
             <div className="mb-6">
-              <h1 className="text-2xl font-semibold">
+              <h1 className="font-display text-2xl font-medium tracking-tight">
                 ToolsKit Control
               </h1>
-              <p className="mt-2 text-sm text-white/50">
+
+              <p className="mt-1.5 text-sm text-textMuted">
                 Masukkan password admin untuk melanjutkan.
               </p>
             </div>
@@ -233,22 +257,24 @@ export default function AdminPage() {
             <input
               type="password"
               value={inputPassword}
-              onChange={(event) => setInputPassword(event.target.value)}
+              onChange={(event) =>
+                setInputPassword(event.target.value)
+              }
               placeholder="Password admin"
               autoComplete="current-password"
-              className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none transition focus:border-white/30"
+              className="w-full rounded-lg border border-border bg-page px-4 py-3 text-sm text-textPrimary outline-none transition placeholder:text-textMuted focus:border-white/25"
             />
 
             <button
               type="submit"
               disabled={loading}
-              className="mt-4 w-full rounded-xl bg-white px-4 py-3 text-sm font-medium text-black transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-50"
+              className="mt-4 w-full rounded-lg bg-white px-4 py-3 text-sm font-medium text-black transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? 'Memeriksa...' : 'Masuk'}
             </button>
 
             {error && (
-              <p className="mt-4 text-center text-xs text-red-400">
+              <p className="mt-4 text-center text-xs text-red">
                 {error}
               </p>
             )}
@@ -259,40 +285,42 @@ export default function AdminPage() {
   }
 
   const enabledMap: Record<string, boolean> = {}
+
   for (const key in flags) {
     enabledMap[key] = flags[key].is_enabled
   }
 
   return (
-    <main className="min-h-screen bg-black px-6 py-12 text-white">
+    <main className="min-h-screen bg-page px-4 py-7 text-textPrimary sm:px-6 sm:py-10">
       <div className="mx-auto max-w-5xl">
-        <header className="text-center">
-          <h1 className="text-3xl font-semibold">
+        <header className="border-b border-border pb-6">
+          <h1 className="font-display text-2xl font-medium tracking-tight sm:text-3xl">
             ToolsKit Control
           </h1>
-          <p className="mt-2 text-sm text-white/50">
-            Kelola status tools WebUtility.
+
+          <p className="mt-1.5 text-sm text-textMuted">
+            Admin dashboard · Kelola status tools WebUtility.
           </p>
         </header>
 
-        <div className="mt-8 flex flex-col gap-4">
+        <div className="mt-6 flex flex-col gap-3">
           <MasterKillSwitch
             onKillAll={handleKillAll}
             onRestoreAll={() => handleToggleAll(true)}
           />
 
           <WeatherSettings password={password} />
+
+          <DisabledToolsNote password={password} />
         </div>
 
-        <DisabledToolsNote password={password} />
-
         {error && (
-          <p className="mt-4 text-center text-xs text-red-400">
+          <div className="mt-3 rounded-lg border border-red/20 bg-red/[0.06] px-4 py-3 text-xs text-red">
             {error}
-          </p>
+          </div>
         )}
 
-        <div className="mt-8 flex flex-col gap-4">
+        <div className="mt-6 flex flex-col gap-3">
           {categories.map((category) => (
             <CategoryGroup
               key={category.slug}
@@ -302,6 +330,10 @@ export default function AdminPage() {
             />
           ))}
         </div>
+
+        <footer className="py-8 text-center text-[11px] text-textMuted">
+          ToolsKit Control · WebUtility admin
+        </footer>
       </div>
     </main>
   )
