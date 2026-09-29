@@ -3,7 +3,11 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 
-export default function DisabledToolsNote({ password }: { password: string }) {
+export default function DisabledToolsNote({
+  password
+}: {
+  password: string
+}) {
   const [note, setNote] = useState('')
   const [savedNote, setSavedNote] = useState('')
   const [status, setStatus] = useState<string | null>(null)
@@ -17,6 +21,7 @@ export default function DisabledToolsNote({ password }: { password: string }) {
       .maybeSingle()
       .then(({ data }) => {
         const value = data?.value ?? ''
+
         setNote(value)
         setSavedNote(value)
       })
@@ -53,14 +58,15 @@ export default function DisabledToolsNote({ password }: { password: string }) {
   const hasChanges = note.trim() !== savedNote
 
   return (
-    <div className="rounded-xl border border-border bg-surface p-5">
+    <section className="rounded-xl border border-border bg-surface p-4 sm:p-5">
       <div>
-        <p className="text-sm font-medium text-textPrimary">
+        <h2 className="text-sm font-medium text-textPrimary sm:text-[15px]">
           Catatan tools dinonaktifkan
-        </p>
+        </h2>
 
-        <p className="mt-1 text-xs leading-5 text-textMuted">
-          Catatan ini akan ditampilkan pada semua tools yang sedang dinonaktifkan oleh admin.
+        <p className="mt-1 max-w-3xl text-xs leading-5 text-textMuted sm:text-sm">
+          Pesan ini akan ditampilkan pada semua tools yang sedang
+          dinonaktifkan oleh admin.
         </p>
       </div>
 
@@ -73,10 +79,10 @@ export default function DisabledToolsNote({ password }: { password: string }) {
         maxLength={200}
         rows={3}
         placeholder="Contoh: Tool sedang dalam maintenance. Silakan coba kembali nanti."
-        className="mt-4 w-full resize-none rounded-lg border border-border bg-surface2 px-3 py-2.5 text-sm leading-5 text-textPrimary outline-none placeholder:text-textMuted focus:border-red"
+        className="mt-4 w-full resize-none rounded-lg border border-border bg-surface2 px-3 py-3 text-sm leading-5 text-textPrimary outline-none transition placeholder:text-textMuted focus:border-white/25"
       />
 
-      <div className="mt-2 flex items-center justify-between">
+      <div className="mt-2 flex items-center justify-between gap-3">
         <span className="text-[11px] text-textMuted">
           {note.length}/200
         </span>
@@ -85,7 +91,7 @@ export default function DisabledToolsNote({ password }: { password: string }) {
           type="button"
           onClick={handleSave}
           disabled={saving || !hasChanges}
-          className="rounded-lg bg-red px-4 py-2 text-xs font-medium text-white transition-opacity hover:bg-red-dark disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded-lg border border-border-strong px-4 py-2 text-xs font-medium text-textPrimary transition hover:bg-white/[0.05] disabled:cursor-not-allowed disabled:border-border disabled:text-textMuted"
         >
           {saving ? 'Menyimpan...' : 'Simpan catatan'}
         </button>
@@ -95,13 +101,13 @@ export default function DisabledToolsNote({ password }: { password: string }) {
         <p
           className={`mt-2 text-xs ${
             status === 'Catatan berhasil disimpan'
-              ? 'text-green-400'
+              ? 'text-textSecondary'
               : 'text-red'
           }`}
         >
           {status}
         </p>
       )}
-    </div>
+    </section>
   )
 }
