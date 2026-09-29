@@ -13,22 +13,43 @@ export default function CategoryGroup({
   onToggle: (toolId: string, enabled: boolean) => void
 }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-border">
-      <div className="bg-surface2 px-4 py-2 text-xs font-medium text-textSecondary">{category.name}</div>
-      <div className="flex flex-col">
-        {category.tools.map((tool) => {
+    <section className="overflow-hidden rounded-xl border border-border bg-surface">
+      <div className="flex items-center justify-between border-b border-border px-4 py-4 sm:px-5">
+        <div className="min-w-0">
+          <h2 className="text-sm font-medium text-textPrimary sm:text-[15px]">
+            {category.name}
+          </h2>
+
+          <p className="mt-1 text-xs text-textMuted">
+            {category.tools.length}{' '}
+            {category.tools.length === 1 ? 'tool' : 'tools'}
+          </p>
+        </div>
+      </div>
+
+      <div>
+        {category.tools.map((tool, index) => {
           const enabled = flags[tool.id] ?? true
+
           return (
             <div
               key={tool.id}
-              className="flex items-center justify-between border-t border-border bg-surface px-4 py-3 first:border-t-0"
+              className={`flex min-h-[64px] items-center justify-between gap-4 px-4 py-3 transition-colors hover:bg-white/[0.025] sm:px-5 ${
+                index > 0 ? 'border-t border-border' : ''
+              }`}
             >
-              <span className="text-sm text-textPrimary">{tool.name}</span>
-              <ToggleSwitch enabled={enabled} onChange={() => onToggle(tool.id, !enabled)} />
+              <span className="min-w-0 text-sm text-textPrimary sm:text-[15px]">
+                {tool.name}
+              </span>
+
+              <ToggleSwitch
+                enabled={enabled}
+                onChange={() => onToggle(tool.id, !enabled)}
+              />
             </div>
           )
         })}
       </div>
-    </div>
+    </section>
   )
 }
