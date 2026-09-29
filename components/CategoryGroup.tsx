@@ -29,7 +29,7 @@ export default function CategoryGroup({
 
       <div>
         {category.tools.map((tool, index) => {
-          const enabled = flags[tool.id] ?? true
+          const enabled = flags[tool.id] ?? false
 
           return (
             <div
