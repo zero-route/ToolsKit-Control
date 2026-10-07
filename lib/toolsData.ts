@@ -62,7 +62,7 @@ export const categories: AdminCategory[] = [
       { id: 'case-converter', name: 'Case converter' },
       { id: 'text-diff-checker', name: 'Text diff checker' },
       { id: 'cron-parser', name: 'Cron expression parser' },
-      { id: 'github-repo-downloader', name: 'GitHub Repository Downloader' }
+      { id: 'github-repository-downloader', name: 'GitHub Repository Downloader' }
     ]
   },
 
